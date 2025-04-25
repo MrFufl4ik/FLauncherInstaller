@@ -59,6 +59,7 @@ int main() {
             string win_user_name = getenv("USERNAME");
             string python_executable_path = "C:/Users/" + win_user_name + "/AppData/Local/Programs/Python/Python313/python.exe";
             cout << "Python успешно установлен" << endl;
+            fs::remove(python_installer_path);
 
             string flauncher_archive_path = flauncher_path + "/" + FLAUNCHER_ARCHIVE_FILE_NAME;
             cout << "Начинаю скачивание файла: " << "\"" << FLAUNCHER_ARCHIVE_FILE_NAME << "\"" << "..." << endl;
@@ -229,9 +230,9 @@ bool unzip_archive_file(const std::string& archive_file_path, const std::string&
             std::string full_path = destination_path + "/";
             full_path += relative_path;
 
-            std::cout << "entry_name: " << entry_name << std::endl;
-            std::cout << "relative_path: " << relative_path << std::endl;
-            std::cout << "full_path: " << full_path << std::endl;
+            //std::cout << "entry_name: " << entry_name << std::endl;
+            //std::cout << "relative_path: " << relative_path << std::endl;
+            //std::cout << "full_path: " << full_path << std::endl;
 
 
             //Create directory if will need
