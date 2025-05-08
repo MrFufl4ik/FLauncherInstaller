@@ -6,6 +6,7 @@
 #include <map>
 #include <zip.h>
 #include "log_system.h"
+#include "python_system.h"
 
 int main();
 
@@ -14,14 +15,14 @@ bool unzip_archive_file(const std::string& archive_file_path, const std::string&
 bool unzip_archive_file(const std::string& archive_file_path, const std::string& destination_path, const std::string& archive_target_folder);
 static size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* buffer);
 
-bool install_flauncher(const std::string& flauncher_path);
-bool update_flauncher(const std::string& flauncher_path);
+bool flauncher_install(const std::string& flauncher_path);
+bool flauncher_update(const std::string& flauncher_path);
 
 std::string* get_exists_flauncher_folder_path_in_user_space();
 std::string get_flauncher_folder_path_in_user_space();
 std::string search_flauncher_folder_path();
 bool python_install(const std::string& python_url, const std::string& python_file_name, const std::string& flauncher_path);
-bool flauncher_archive_install(const std::string& flauncher_archive_url, const  std::string& flauncher_archive_file_name);
+bool flauncher_clone(const std::string& flauncher_path, const std::string& flauncher_archive_url, const std::string& flauncher_archive_file_name);
 
 
 const std::string FLAUNCHER_FOLDER_NAME = "FLauncher";
@@ -48,83 +49,91 @@ int main() {
     if (!fs::exists(flauncher_path)) {
         //FLauncher install
         fs::create_directory(flauncher_path);
-        python_install(PYTHON_URL, PYTHON_FILE_NAME, flauncher_path);
-
+        bool is_flauncher_installed = flauncher_install(flauncher_path);
+        if (is_flauncher_installed) installer_log("FLauncher успешно установлен", LogStatus::Correct);
+        else installer_log("FLauncher не установлен, обратитесь в службу поддержки(дискордик)", LogStatus::Error);
     }
     else {
         //FLauncher update
-
+        flauncher_update(flauncher_path);
     }
-
-    //python_install(PYTHON_URL, PYTHON_FILE_NAME, " ");
+    installer_log("FLauncher Installer завершил работу");
+    installer_log("Нажмите любую клавишу чтобы продолжить...");
+    cin.get();
     return 0;
+}
 
-    string* ptr_launcher_folder_path = get_exists_flauncher_folder_path_in_user_space();
-    if (ptr_launcher_folder_path != nullptr) {
-
+bool flauncher_install(const std::string& flauncher_path) {
+    using std::string;
+    using std::cout;
+    using std::endl;
+    {
+        installer_log("Начинаю установку Python'a...");
+        bool is_python_install = python_install(PYTHON_URL, PYTHON_FILE_NAME, flauncher_path);
+        if (!is_python_install) {
+            installer_log("Python не установлен", LogStatus::Error);
+            return false;
+        }
+        installer_log("Python успешно установлен", LogStatus::Correct);
     }
-    else {
-        char disk_char = '-';
-        {
-            while (!fs::exists(string(1, disk_char) + ":/")) {
-                string temp_str;
-                while (!isalpha(temp_str[0])) {
-                    cout << "Введите букву диска, где будет находится FLauncher: ";
-
-                    getline(cin, temp_str);
-                }
-                disk_char = static_cast<char>(toupper(temp_str[0]));
-            }
+    cout << endl;
+    {
+        installer_log("Начинаю клонирование репозитория FLauncher'a");
+        bool is_flauncher_cloned = flauncher_clone(flauncher_path, FLAUNCHER_ARCHIVE_URL, FLAUNCHER_ARCHIVE_FILE_NAME);
+        if (!is_flauncher_cloned) {
+            installer_log("FLauncher не склонирован", LogStatus::Error);
+            return false;
         }
-
-        string flauncher_path = string(1, disk_char) + ":/" + FLAUNCHER_FOLDER_NAME;
-        fs::create_directory(flauncher_path);
-        cout << "Создана папка лаунчера: " << "\"" << flauncher_path << "\"" << endl;
-
-
-        cout << "Начинаю скачивание файла: " << "\"" << PYTHON_FILE_NAME << "\"" << "..." << endl;
-        string python_installer_path = flauncher_path + "/" + PYTHON_FILE_NAME;
-        if (download_file(PYTHON_URL, python_installer_path)) {
-            cout << "Файл: " << "\"" << python_installer_path << "\"" << " успешно загружен" << endl;
-            cout << "Начинаю устанавливать: " << "\"" << python_installer_path << "\"" << "..." << endl;
-            string python_installer_cmd = python_installer_path + " /quiet PrependPath=1";
-            system(python_installer_cmd.c_str());
-            string win_user_name = getenv("USERNAME");
-            string python_executable_path = "C:/Users/" + win_user_name + "/AppData/Local/Programs/Python/Python313/python.exe";
-            cout << "Python успешно установлен" << endl;
-            fs::remove(python_installer_path);
-
-            string flauncher_archive_path = flauncher_path + "/" + FLAUNCHER_ARCHIVE_FILE_NAME;
-            cout << "Начинаю скачивание файла: " << "\"" << FLAUNCHER_ARCHIVE_FILE_NAME << "\"" << "..." << endl;
-            if (download_file(FLAUNCHER_ARCHIVE_URL, flauncher_archive_path)) {
-                cout << "Файл: " << "\"" << flauncher_archive_path << "\"" << " успешно загружен" << endl;
-                cout << "Начинаем распаковку лаунчера..." << endl;
-                if (unzip_archive_file(flauncher_archive_path, flauncher_path, "FLauncher-main/")) {
-                    cout << "Архив: " << "\"" << flauncher_archive_path << "\"" << " успешно распакован" << endl;
-                }
-                else {
-                    cerr << "Не удалось открыть архив: " << "\"" << flauncher_archive_path << "\"" << endl;
-                    fs::remove(flauncher_path);
-                    cout << "Для закрытия установщика нажмите любую клавишу...";
-                    cin.get();
-                    return 1;
-                }
-            }
-            else {
-                fs::remove(flauncher_path);
-                cout << "Для закрытия установщика нажмите любую клавишу...";
-                cin.get();
-                return 1;
-            }
-        }
-        else {
-            fs::remove(flauncher_path);
-            cout << "Для закрытия установщика нажмите любую клавишу...";
-            cin.get();
-            return 1;
-        }
+        installer_log("FLauncher успешно склонирован", LogStatus::Correct);
     }
-    return 0;
+    cout << endl;
+    {
+        installer_log("Начинаю установку зависимостей Python");
+        const string python_venv_path = flauncher_path + "/" + ".venv";
+        python_create_venv(python_venv_path);
+        bool is_pip_requirements_installed = python_pip_install(
+            python_venv_path,
+            flauncher_path + "/" + "requirements.txt"
+        );
+        if (!is_pip_requirements_installed) {
+            installer_log("Не удалось установить зависимости Python", LogStatus::Error);
+            return false;
+        }
+        installer_log("Зависимости Python успешно установлены", LogStatus::Correct);
+    }
+    return true;
+}
+
+bool flauncher_update(const std::string& flauncher_path) {
+    return true;
+}
+
+bool flauncher_clone(const std::string& flauncher_path, const std::string& flauncher_archive_url, const std::string& flauncher_archive_file_name) {
+    using std::string;
+    namespace fs = std::filesystem;
+
+    const string flauncher_archive_file_path = flauncher_path + "/" + flauncher_archive_file_name;
+    {
+        bool is_flauncher_archive_downloaded = download_file(flauncher_archive_url,flauncher_archive_file_path);
+        if (!is_flauncher_archive_downloaded) {
+            installer_log("Архив FLauncher'a не скачен", LogStatus::Error);
+            return false;
+        }
+        installer_log("Архив FLanucher'a успешно скачен", LogStatus::Correct);
+    }
+    {
+        bool is_flauncher_archive_uziped = unzip_archive_file(
+            flauncher_archive_file_path,
+            flauncher_path,
+            "FLauncher-main/");
+        if (!is_flauncher_archive_uziped) {
+            installer_log("Архив FLauncher'a не распакован", LogStatus::Error);
+            return false;
+        }
+        installer_log("Архив FLauncher'a успешно распакован", LogStatus::Correct);
+    }
+    fs::remove(flauncher_archive_file_path);
+    return true;
 }
 
 //Search FLauncher folder path
@@ -146,6 +155,7 @@ std::string get_flauncher_folder_path_in_user_space() {
     using std::string;
     using std::cout;
     using std::cin;
+    using std::endl;
     namespace fs = std::filesystem;
     char disk_char = '-';
     {
@@ -156,6 +166,7 @@ std::string get_flauncher_folder_path_in_user_space() {
 
                 getline(cin, temp_str);
             }
+            cout << endl;
             disk_char = static_cast<char>(toupper(temp_str[0]));
         }
     }
@@ -180,22 +191,20 @@ bool python_install(const std::string& python_url, const std::string& python_fil
     using std::endl;
     namespace fs = std::filesystem;
 
-    string python_installer_path = flauncher_path + "/" + python_file_name;
-    installer_file_log("Начинаем скачивание файла", python_installer_path);
-    if (download_file(PYTHON_URL, python_installer_path)) {
-        cout << "Файл: " << "\"" << python_installer_path << "\"" << " успешно загружен" << endl;
-        cout << "Начинаю устанавливать: " << "\"" << python_installer_path << "\"" << "..." << endl;
-        string python_installer_cmd = python_installer_path + " /quiet PrependPath=1";
-        system(python_installer_cmd.c_str());
-        string win_user_name = getenv("USERNAME");
-        string python_executable_path = "C:/Users/" + win_user_name + "/AppData/Local/Programs/Python/Python313/python.exe";
-        cout << "Python успешно установлен" << endl;
-        fs::remove(python_installer_path);
+    const string python_installer_path = flauncher_path + "/" + python_file_name;
+    bool is_python_installer_downloaded = download_file(python_url, python_installer_path);
+    if (!is_python_installer_downloaded) {
+        installer_log("Установщик Python'a не скачен", LogStatus::Error);
+        return false;
     }
+    installer_log("Установщик Python'a успешно скачен", LogStatus::Correct);
+    const string python_installer_cmd = python_installer_path + " /quiet PrependPath=1";
+    system(python_installer_cmd.c_str());
+    fs::remove(python_installer_path);
+    return true;
 }
 
 bool download_file(const std::string & url, const std::string & file_path) {
-    using std::cerr;
     using std::string;
     using std::endl;
     using std::ofstream;
@@ -212,7 +221,7 @@ bool download_file(const std::string & url, const std::string & file_path) {
 
         res = curl_easy_perform(curl);
         if(res != CURLE_OK) {
-            cerr << "Не удалось скачать файл :(" << endl << "Проверьте подключение к интернету!";
+            installer_url_log("Невозможно подключится к серверу", url, LogStatus::Error);
             curl_easy_cleanup(curl);
             return false;
         }
@@ -221,7 +230,7 @@ bool download_file(const std::string & url, const std::string & file_path) {
 
         ofstream out_file(file_path, ios::binary);
         if(!out_file) {
-            cerr << "Не удалось записать данные в файл: " << "\"" << file_path << "\"" << endl;
+            installer_file_log("Невозможно записать данные в файл", file_path, LogStatus::Error);
             return false;
         }
         out_file << read_buffer;
