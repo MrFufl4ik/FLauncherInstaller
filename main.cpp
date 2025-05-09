@@ -5,6 +5,7 @@
 #include <windows.h>
 #include <map>
 #include <zip.h>
+#include "localisation.h"
 #include "log_system.h"
 #include "python_system.h"
 
@@ -41,6 +42,10 @@ int main() {
     namespace fs = std::filesystem;
 
     SetConsoleOutputCP(CP_UTF8);
+
+    Localisation::getInstance()->loadLocalisation(LocalisationType::RU);
+    installer_log(Localisation::getInstance()->getLocalisationMap().at("test"), LogStatus::Correct);
+    return 0;
 
     installer_log("FLauncher Installer инициализирован", LogStatus::Correct);
 
