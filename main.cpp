@@ -8,6 +8,7 @@
 #include "localisation.h"
 #include "log_system.h"
 #include "python_system.h"
+#include "src/install_entity/python_install_entity.h"
 
 int main();
 
@@ -38,16 +39,21 @@ int main() {
     using std::cin;
     using std::cerr;
     using std::endl;
+    using std::unordered_map;
 
     namespace fs = std::filesystem;
 
     SetConsoleOutputCP(CP_UTF8);
 
     Localisation::getInstance()->loadLocalisation(LocalisationType::RU);
-    installer_log(Localisation::getInstance()->getLocalisationMap().at("test"), LogStatus::Correct);
+    //installer_log(Localisation::getInstance()->getLocalisationMap().at("test"), LogStatus::Correct);
+    PythonInstallEntity install_entity {};
+    install_entity.install();
     return 0;
 
-    installer_log("FLauncher Installer инициализирован", LogStatus::Correct);
+    unordered_map<string, string> localisation_map = Localisation::getInstance()->getLocalisationMap();
+
+    installer_log(localisation_map.at("flauncher.init"), LogStatus::Correct);
 
     std::string flauncher_path = search_flauncher_folder_path();
 
@@ -55,15 +61,15 @@ int main() {
         //FLauncher install
         fs::create_directory(flauncher_path);
         bool is_flauncher_installed = flauncher_install(flauncher_path);
-        if (is_flauncher_installed) installer_log("FLauncher успешно установлен", LogStatus::Correct);
-        else installer_log("FLauncher не установлен, обратитесь в службу поддержки(дискордик)", LogStatus::Error);
+        if (is_flauncher_installed) installer_log(localisation_map.at("flauncher.installed"), LogStatus::Correct);
+        else installer_log(localisation_map.at("flauncher.notinstalled"), LogStatus::Error);
     }
     else {
         //FLauncher update
         flauncher_update(flauncher_path);
     }
-    installer_log("FLauncher Installer завершил работу");
-    installer_log("Нажмите любую клавишу чтобы продолжить...");
+    installer_log(localisation_map.at("flauncher.off"));
+    installer_log(localisation_map.at("flauncher.wait.exit"));
     cin.get();
     return 0;
 }
@@ -72,28 +78,32 @@ bool flauncher_install(const std::string& flauncher_path) {
     using std::string;
     using std::cout;
     using std::endl;
+    using std::unordered_map;
+
+    unordered_map<string, string> localisation_map = Localisation::getInstance()->getLocalisationMap();
+
     {
-        installer_log("Начинаю установку Python'a...");
+        installer_log(localisation_map.at("python.start.install"));
         bool is_python_install = python_install(PYTHON_URL, PYTHON_FILE_NAME, flauncher_path);
         if (!is_python_install) {
-            installer_log("Python не установлен", LogStatus::Error);
+            installer_log(localisation_map.at("python.notinstalled"), LogStatus::Error);
             return false;
         }
-        installer_log("Python успешно установлен", LogStatus::Correct);
+        installer_log(localisation_map.at("python.installed"), LogStatus::Correct);
     }
     cout << endl;
     {
-        installer_log("Начинаю клонирование репозитория FLauncher'a");
+        installer_log(localisation_map.at("flauncher.git.start.clone"));
         bool is_flauncher_cloned = flauncher_clone(flauncher_path, FLAUNCHER_ARCHIVE_URL, FLAUNCHER_ARCHIVE_FILE_NAME);
         if (!is_flauncher_cloned) {
-            installer_log("FLauncher не склонирован", LogStatus::Error);
+            installer_log(localisation_map.at("flauncher.git.notcloned"), LogStatus::Error);
             return false;
         }
-        installer_log("FLauncher успешно склонирован", LogStatus::Correct);
+        installer_log(localisation_map.at("flauncher.git.cloned"), LogStatus::Correct);
     }
     cout << endl;
     {
-        installer_log("Начинаю установку зависимостей Python");
+        installer_log(localisation_map.at("python.pip.start.install"));
         const string python_venv_path = flauncher_path + "/" + ".venv";
         python_create_venv(python_venv_path);
         bool is_pip_requirements_installed = python_pip_install(
@@ -101,10 +111,10 @@ bool flauncher_install(const std::string& flauncher_path) {
             flauncher_path + "/" + "requirements.txt"
         );
         if (!is_pip_requirements_installed) {
-            installer_log("Не удалось установить зависимости Python", LogStatus::Error);
+            installer_log(localisation_map.at("python.pip.notinstalled"), LogStatus::Error);
             return false;
         }
-        installer_log("Зависимости Python успешно установлены", LogStatus::Correct);
+        installer_log(localisation_map.at("python.pip.installed"), LogStatus::Correct);
     }
     return true;
 }
@@ -115,16 +125,19 @@ bool flauncher_update(const std::string& flauncher_path) {
 
 bool flauncher_clone(const std::string& flauncher_path, const std::string& flauncher_archive_url, const std::string& flauncher_archive_file_name) {
     using std::string;
+    using std::unordered_map;
     namespace fs = std::filesystem;
+
+    unordered_map<string, string> localisation_map = Localisation::getInstance()->getLocalisationMap();
 
     const string flauncher_archive_file_path = flauncher_path + "/" + flauncher_archive_file_name;
     {
         bool is_flauncher_archive_downloaded = download_file(flauncher_archive_url,flauncher_archive_file_path);
         if (!is_flauncher_archive_downloaded) {
-            installer_log("Архив FLauncher'a не скачен", LogStatus::Error);
+            installer_log(localisation_map.at("flauncher.archive.notinstalled"), LogStatus::Error);
             return false;
         }
-        installer_log("Архив FLanucher'a успешно скачен", LogStatus::Correct);
+        installer_log(localisation_map.at("flauncher.archive.downloaded"), LogStatus::Correct);
     }
     {
         bool is_flauncher_archive_uziped = unzip_archive_file(
@@ -132,10 +145,10 @@ bool flauncher_clone(const std::string& flauncher_path, const std::string& flaun
             flauncher_path,
             "FLauncher-main/");
         if (!is_flauncher_archive_uziped) {
-            installer_log("Архив FLauncher'a не распакован", LogStatus::Error);
+            installer_log(localisation_map.at("flauncher.archive.notunziped"), LogStatus::Error);
             return false;
         }
-        installer_log("Архив FLauncher'a успешно распакован", LogStatus::Correct);
+        installer_log(localisation_map.at("flauncher.archive.unziped"), LogStatus::Correct);
     }
     fs::remove(flauncher_archive_file_path);
     return true;
@@ -179,14 +192,18 @@ std::string get_flauncher_folder_path_in_user_space() {
 }
 std::string search_flauncher_folder_path() {
     using std::string;
+    using std::unordered_map;
     namespace fs = std::filesystem;
+
+    unordered_map<string, string> localisation_map = Localisation::getInstance()->getLocalisationMap();
+
     string* ptr_exists_flauncher_folder_path_in_user_space = get_exists_flauncher_folder_path_in_user_space();
     if (ptr_exists_flauncher_folder_path_in_user_space != nullptr) {
-        installer_file_log("Найден установленный FLauncher", *ptr_exists_flauncher_folder_path_in_user_space);
+        installer_file_log(localisation_map.at("flauncher.exists.path.found"), *ptr_exists_flauncher_folder_path_in_user_space);
         return *ptr_exists_flauncher_folder_path_in_user_space;
     }
     string flauncher_folder_path = get_flauncher_folder_path_in_user_space();
-    installer_file_log("FLauncher будет установлен в папку", flauncher_folder_path);
+    installer_file_log(localisation_map.at("flauncher.path.found"), flauncher_folder_path);
     return flauncher_folder_path;
 }
 
@@ -194,15 +211,18 @@ bool python_install(const std::string& python_url, const std::string& python_fil
     using std::cout;
     using std::string;
     using std::endl;
+    using std::unordered_map;
     namespace fs = std::filesystem;
+
+    unordered_map<string, string> localisation_map = Localisation::getInstance()->getLocalisationMap();
 
     const string python_installer_path = flauncher_path + "/" + python_file_name;
     bool is_python_installer_downloaded = download_file(python_url, python_installer_path);
     if (!is_python_installer_downloaded) {
-        installer_log("Установщик Python'a не скачен", LogStatus::Error);
+        installer_log(localisation_map.at("python.installer.notdownloaded"), LogStatus::Error);
         return false;
     }
-    installer_log("Установщик Python'a успешно скачен", LogStatus::Correct);
+    installer_log(localisation_map.at("python.installer.downloaded"), LogStatus::Correct);
     const string python_installer_cmd = python_installer_path + " /quiet PrependPath=1";
     system(python_installer_cmd.c_str());
     fs::remove(python_installer_path);
@@ -214,6 +234,10 @@ bool download_file(const std::string & url, const std::string & file_path) {
     using std::endl;
     using std::ofstream;
     using std::ios;
+    using std::unordered_map;
+
+    unordered_map<string, string> localisation_map = Localisation::getInstance()->getLocalisationMap();
+
     CURL* curl;
     CURLcode res;
     string read_buffer;
@@ -226,7 +250,7 @@ bool download_file(const std::string & url, const std::string & file_path) {
 
         res = curl_easy_perform(curl);
         if(res != CURLE_OK) {
-            installer_url_log("Невозможно подключится к серверу", url, LogStatus::Error);
+            installer_url_log(localisation_map.at("curl.server.timeout"), url, LogStatus::Error);
             curl_easy_cleanup(curl);
             return false;
         }
@@ -235,7 +259,7 @@ bool download_file(const std::string & url, const std::string & file_path) {
 
         ofstream out_file(file_path, ios::binary);
         if(!out_file) {
-            installer_file_log("Невозможно записать данные в файл", file_path, LogStatus::Error);
+            installer_file_log(localisation_map.at("fs.file.open.error"), file_path, LogStatus::Error);
             return false;
         }
         out_file << read_buffer;

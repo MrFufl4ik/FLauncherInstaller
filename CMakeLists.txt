@@ -15,7 +15,12 @@ add_executable(FLauncherInstaller main.cpp
         python_system.h
         localisation.h
         localisation.cpp
-        localisationtype.h)
+        localisationtype.h
+        src/install_entity/install_entity.cpp
+        src/install_entity/install_entity.h
+        src/install_entity/python_install_entity.cpp
+        src/install_entity/python_install_entity.h
+)
 target_link_libraries(FLauncherInstaller PRIVATE CURL::libcurl_static)
 target_link_libraries(FLauncherInstaller PRIVATE libzip::zip)
 target_link_libraries(FLauncherInstaller PRIVATE ${ZLIB_LIBRARIES})
