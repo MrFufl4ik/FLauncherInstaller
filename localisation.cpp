@@ -4,6 +4,7 @@ Localisation* Localisation::instance = nullptr;
 std::mutex Localisation::mtx;
 
 Localisation* Localisation::getInstance() {
+  
     if (instance == nullptr) {
         std::lock_guard<std::mutex> lock(mtx);
         if (instance == nullptr) instance = new Localisation();
