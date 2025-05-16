@@ -4,7 +4,6 @@ Localisation* Localisation::instance = nullptr;
 std::mutex Localisation::mtx;
 
 Localisation* Localisation::getInstance() {
-  
     if (instance == nullptr) {
         std::lock_guard<std::mutex> lock(mtx);
         if (instance == nullptr) instance = new Localisation();
@@ -22,6 +21,9 @@ void Localisation::loadLocalisation(LocalisationType localisation_type) {
         localisationMap.emplace("flauncher.notinstalled", "FLauncher не установлен, обратитесь в службу поддержки(дискордик)");
         localisationMap.emplace("flauncher.off", "FLauncher Installer завершил работу");
         localisationMap.emplace("flauncher.wait.exit", "Нажмите любую клавишу чтобы продолжить...");
+        
+        localisationMap.emplace("install.manager.install.process.start", "Начинаю установку entity");
+        localisationMap.emplace("install.manager.install.process.end", "Завершена установка entity");
 
         localisationMap.emplace("python.start.install", "Начинаю установку Python'a...");
         localisationMap.emplace("python.notinstalled", "Python не установлен");

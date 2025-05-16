@@ -1,29 +1,37 @@
 #include "install_entity.h"
-#include <iostream>
-#include "../../log_system.h"
 
 InstallEntity::InstallEntity() = default;
 InstallEntity::~InstallEntity() = default;
-bool InstallEntity::_install() { return true; }
 
+int InstallEntity::_install(){ return 0; }
+void InstallEntity::_error_catch_handler(int error_code){ }
 
-bool InstallEntity::install() {
+int InstallEntity::install(){
     if (
-        !_entityData.contains("entity.wait") ||
-        !_entityData.contains("entity.installed") ||
-        !_entityData.contains("entity.notinstalled")
+      !_entityData.contains("entity.wait") ||
+      !_entityData.contains("entity.installed") ||
+      !_entityData.contains("entity.notinstalled")
     ) {
-        std::cout << "Install entity keys is not defined" << std::endl;
-        exit(1);
+      std::cout << "Install entity localisation keys is not defined" << std::endl;
+      exit(1);
     }
 
     installer_log(_entityData.at("entity.wait"));
-    if (!_install()) {
-        installer_log(_entityData.at("entity.notinstalled"), LogStatus::Error);
-        return false;
+    int install_entity_exit_code = this->_install();
+    if (install_entity_exit_code != 0) {
+      _error_catch_handler(install_entity_exit_code);
+      installer_log(_entityData.at("entity.notinstalled"), LogStatus::Error);
+      return install_entity_exit_code;
     }
     installer_log(_entityData.at("entity.installed"), LogStatus::Correct);
-    return true;
+    return install_entity_exit_code;
 }
 
-
+std::string InstallEntity::getData(std::string key){
+  using std::cout, std::endl;
+  if(!_entityData.contains(key)){
+    cout << "Key: " << key << " is not defined in install entity" << endl;
+    exit(1);
+  }
+  return _entityData.at(key);
+}
