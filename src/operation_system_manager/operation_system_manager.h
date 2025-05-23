@@ -1,0 +1,4 @@
+class OperationSystemManager {
+public:
+
+};

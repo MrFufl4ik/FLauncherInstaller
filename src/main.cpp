@@ -5,10 +5,10 @@
 #include <windows.h>
 #include <map>
 #include <zip.h>
-#include "localisation.h"
-#include "log_system.h"
-#include "python_system.h"
-#include "src/install_entity/python_install_entity.h"
+#include "localisation_manager/localisation_manager.h"
+#include "log_manager/log_manager.h"
+#include "../python_system.h"
+#include "install_entity/python_install_entity.h"
 
 int main();
 
@@ -45,13 +45,13 @@ int main() {
 
     SetConsoleOutputCP(CP_UTF8);
 
-    Localisation::getInstance()->loadLocalisation(LocalisationType::RU);
+    LocalisationManager::getInstance()->loadLocalisation(LocalisationType::RU);
     //installer_log(Localisation::getInstance()->getLocalisationMap().at("test"), LogStatus::Correct);
     PythonInstallEntity install_entity {};
     install_entity.install();
     return 0;
 
-    unordered_map<string, string> localisation_map = Localisation::getInstance()->getLocalisationMap();
+    unordered_map<string, string> localisation_map = LocalisationManager::getInstance()->getLocalisationMap();
 
     installer_log(localisation_map.at("flauncher.init"), LogStatus::Correct);
 
@@ -80,7 +80,7 @@ bool flauncher_install(const std::string& flauncher_path) {
     using std::endl;
     using std::unordered_map;
 
-    unordered_map<string, string> localisation_map = Localisation::getInstance()->getLocalisationMap();
+    unordered_map<string, string> localisation_map = LocalisationManager::getInstance()->getLocalisationMap();
 
     {
         installer_log(localisation_map.at("python.start.install"));
@@ -128,7 +128,7 @@ bool flauncher_clone(const std::string& flauncher_path, const std::string& flaun
     using std::unordered_map;
     namespace fs = std::filesystem;
 
-    unordered_map<string, string> localisation_map = Localisation::getInstance()->getLocalisationMap();
+    unordered_map<string, string> localisation_map = LocalisationManager::getInstance()->getLocalisationMap();
 
     const string flauncher_archive_file_path = flauncher_path + "/" + flauncher_archive_file_name;
     {
@@ -195,7 +195,7 @@ std::string search_flauncher_folder_path() {
     using std::unordered_map;
     namespace fs = std::filesystem;
 
-    unordered_map<string, string> localisation_map = Localisation::getInstance()->getLocalisationMap();
+    unordered_map<string, string> localisation_map = LocalisationManager::getInstance()->getLocalisationMap();
 
     string* ptr_exists_flauncher_folder_path_in_user_space = get_exists_flauncher_folder_path_in_user_space();
     if (ptr_exists_flauncher_folder_path_in_user_space != nullptr) {
@@ -214,7 +214,7 @@ bool python_install(const std::string& python_url, const std::string& python_fil
     using std::unordered_map;
     namespace fs = std::filesystem;
 
-    unordered_map<string, string> localisation_map = Localisation::getInstance()->getLocalisationMap();
+    unordered_map<string, string> localisation_map = LocalisationManager::getInstance()->getLocalisationMap();
 
     const string python_installer_path = flauncher_path + "/" + python_file_name;
     bool is_python_installer_downloaded = download_file(python_url, python_installer_path);
@@ -236,7 +236,7 @@ bool download_file(const std::string & url, const std::string & file_path) {
     using std::ios;
     using std::unordered_map;
 
-    unordered_map<string, string> localisation_map = Localisation::getInstance()->getLocalisationMap();
+    unordered_map<string, string> localisation_map = LocalisationManager::getInstance()->getLocalisationMap();
 
     CURL* curl;
     CURLcode res;

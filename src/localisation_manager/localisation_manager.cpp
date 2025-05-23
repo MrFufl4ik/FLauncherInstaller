@@ -1,27 +1,29 @@
-#include "localisation.h"
+#include "localisation_manager.h"
 
-Localisation* Localisation::instance = nullptr;
-std::mutex Localisation::mtx;
+LocalisationManager *LocalisationManager::instance = nullptr;
+std::mutex LocalisationManager::mtx;
 
-Localisation* Localisation::getInstance() {
+LocalisationManager::LocalisationManager() = default;
+
+LocalisationManager *LocalisationManager::getInstance() {
     if (instance == nullptr) {
         std::lock_guard<std::mutex> lock(mtx);
-        if (instance == nullptr) instance = new Localisation();
+        if (instance == nullptr)
+            instance = new LocalisationManager();
     }
     return instance;
 }
 
-Localisation::Localisation() = default;
-
-void Localisation::loadLocalisation(LocalisationType localisation_type) {
+void LocalisationManager::loadLocalisation(LocalisationType localisation_type) {
     std::lock_guard<std::mutex> lock(mtx);
     if (localisation_type == LocalisationType::RU) {
         localisationMap.emplace("flauncher.init", "FLauncher Installer инициализирован");
         localisationMap.emplace("flauncher.installed", "FLauncher успешно установлен");
-        localisationMap.emplace("flauncher.notinstalled", "FLauncher не установлен, обратитесь в службу поддержки(дискордик)");
+        localisationMap.emplace("flauncher.notinstalled",
+                                "FLauncher не установлен, обратитесь в службу поддержки(дискордик)");
         localisationMap.emplace("flauncher.off", "FLauncher Installer завершил работу");
         localisationMap.emplace("flauncher.wait.exit", "Нажмите любую клавишу чтобы продолжить...");
-        
+
         localisationMap.emplace("install.manager.install.process.start", "Начинаю установку entity");
         localisationMap.emplace("install.manager.install.process.end", "Завершена установка entity");
 
@@ -52,11 +54,10 @@ void Localisation::loadLocalisation(LocalisationType localisation_type) {
         localisationMap.emplace("fs.file.open.error", "Невозможно записать данные в файл");
     }
 }
-std::unordered_map<std::string, std::string> Localisation::getLocalisationMap() {
+
+std::unordered_map<std::string, std::string> LocalisationManager::getLocalisationMap() {
     std::lock_guard<std::mutex> lock(mtx);
     return localisationMap;
 }
 
-//void loadLocalisation(LocalisationType localisation_type);
-
-
+// void loadLocalisation(LocalisationType localisation_type);

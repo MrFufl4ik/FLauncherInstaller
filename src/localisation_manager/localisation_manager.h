@@ -2,23 +2,22 @@
 #include <mutex>
 #include <string>
 #include <unordered_map>
-#include "localisationtype.h"
+#include "localisation_type.h"
 
-class Localisation {
+class LocalisationManager {
 private:
     std::unordered_map<std::string, std::string> localisationMap;
 
-    static Localisation* instance;
+    static LocalisationManager *instance;
     static std::mutex mtx;
 
-    Localisation();
+    LocalisationManager();
 
 public:
-    static Localisation* getInstance();
+    static LocalisationManager *getInstance();
     void loadLocalisation(LocalisationType localisation_type);
     std::unordered_map<std::string, std::string> getLocalisationMap();
 
-    Localisation(const Localisation&) = delete;
-    Localisation& operator = (const Localisation&) = delete;
+    LocalisationManager(const LocalisationManager &) = delete;
+    LocalisationManager &operator=(const LocalisationManager &) = delete;
 };
-
