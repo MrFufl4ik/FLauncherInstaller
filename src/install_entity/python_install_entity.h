@@ -8,7 +8,7 @@
 class PythonInstallEntity : public InstallEntity {
 private:
     int _install() override;
-    void _error_catch_handler(int error_code) override;
+    void _errorCatchHandler(int error_code) override;
 
 public:
     PythonInstallEntity();

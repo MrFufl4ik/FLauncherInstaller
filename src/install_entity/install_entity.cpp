@@ -4,7 +4,15 @@ InstallEntity::InstallEntity() = default;
 InstallEntity::~InstallEntity() = default;
 
 int InstallEntity::_install() { return 0; }
-void InstallEntity::_error_catch_handler(int error_code) {}
+void InstallEntity::_errorCatchHandler(int error_code) {}
+
+void InstallEntity::_defaultErrorCatchHandler(int error_code) {
+    if (error_code == 1) installer_log("Файл не доступен для записи или чтения", LogStatus::Error);
+    else if (error_code == 2) installer_log("Нет подключения к интернету", LogStatus::Error);
+    else if (error_code == 3) installer_log("Ресурс не доступен", LogStatus::Error);
+    _errorCatchHandler(error_code);
+}
+
 
 int InstallEntity::install() {
     if (!_entityData.contains("entity.wait") || !_entityData.contains("entity.installed") ||
@@ -16,7 +24,7 @@ int InstallEntity::install() {
     installer_log(_entityData.at("entity.wait"));
     int install_entity_exit_code = this->_install();
     if (install_entity_exit_code != 0) {
-        _error_catch_handler(install_entity_exit_code);
+        _defaultErrorCatchHandler(install_entity_exit_code);
         installer_log(_entityData.at("entity.notinstalled"), LogStatus::Error);
         return install_entity_exit_code;
     }

@@ -10,7 +10,8 @@ protected:
 
 private:
     virtual int _install();
-    virtual void _error_catch_handler(int error_code);
+    virtual void _errorCatchHandler(int error_code);
+    void _defaultErrorCatchHandler(int error_code);
 
 public:
     virtual ~InstallEntity();

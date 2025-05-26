@@ -12,8 +12,7 @@ int PythonInstallEntity::_install() {
     return 1;
 }
 
-void PythonInstallEntity::_error_catch_handler(int error_code) {
-    if (error_code == 1) {
-        installer_log("Файл не доступен для записи или чтения", LogStatus::Error);
-    }
+void PythonInstallEntity::_errorCatchHandler(int error_code) {
+    if (error_code == 1) installer_log("Файл не доступен для записи или чтения", LogStatus::Error);
+
 }
