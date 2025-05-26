@@ -53,7 +53,11 @@ std::string OperationSystemManager::strip(const std::string &str) {
     return str.substr(start, end - start + 1);
 }
 
-std::string OperationSystemManager::executeCommand(const std::string &command) {
+int OperationSystemManager::executeCommand(const std::string &command) {
+    return system(command.c_str());
+}
+
+std::string OperationSystemManager::executeCommandWithStdOut(const std::string &command) {
     std::array<char, 128> buffer;
     std::string result;
     std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(command.c_str(), "r"), pclose);
@@ -63,14 +67,13 @@ std::string OperationSystemManager::executeCommand(const std::string &command) {
 }
 
 bool OperationSystemManager::isPythonInstalled() {
-    std::string command_result = strip(executeCommand("python --version 2>&1"));
+    std::string command_result = strip(executeCommandWithStdOut("python --version 2>&1"));
     return command_result.rfind("Python ", 0) == 0;
 }
 
 int OperationSystemManager::pythonCreateVenv(const std::string &destination_path) {
-    namespace fs = std::filesystem;
     if (!isPythonInstalled()) return 5;
-    if (fs::exists(destination_path)) fs::remove(destination_path);
+    if (std::filesystem::exists(destination_path)) std::filesystem::remove(destination_path);
     const std::string python_venv_create_command = std::string("python -m venv ").append(destination_path);
     system(python_venv_create_command.c_str());
     return 0;
@@ -78,11 +81,9 @@ int OperationSystemManager::pythonCreateVenv(const std::string &destination_path
 
 int OperationSystemManager::pythonPipModulesInstall(const std::string &python_interpreter_path,
                                                     const std::string &requirements_list_path) {
-    namespace fs = std::filesystem;
-    if (!fs::exists(requirements_list_path)) return 1;
-    if (!fs::exists(python_interpreter_path)) return 6;
+    if (!std::filesystem::exists(requirements_list_path)) return 1;
+    if (!std::filesystem::exists(python_interpreter_path)) return 6;
     const std::string python_venv_requirements_install_command =
-        std::format("{} install -r {}", python_interpreter_path, requirements_list_path);
-    system(python_venv_requirements_install_command.c_str());
-    return 0;
+        std::format("{} -m pip install -r {}", python_interpreter_path, requirements_list_path);
+    return system(python_venv_requirements_install_command.c_str());
 }

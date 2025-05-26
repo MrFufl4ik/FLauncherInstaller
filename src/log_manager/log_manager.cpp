@@ -18,6 +18,11 @@ void installer_url_log(const std::string &text, const std::string &url, const st
 void installer_log(const std::string &text, LogStatus log_type) {
     std::cout << log_status_map[log_type] << ' ' << text << std::endl;
 }
+void installer_error_code_log(int error_code) {
+    std::cout << log_status_map[LogStatus::Status] << ' ' << "При выполнении вернулся код ошибки" << ':'
+            << ' ' << error_code << std::endl;
+}
+
 void installer_im_log(const std::string &text, const std::string &entity_title_name) {
     std::cout << log_status_map[LogStatus::InstallManager] << ' ' << text << ':' << ' ' << entity_title_name
               << std::endl;

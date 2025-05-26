@@ -23,8 +23,9 @@ public:
     int downloadFile(const std::string &url, const std::string &destination_file_path);
     int pythonCreateVenv(const std::string &destination_path);
     int pythonPipModulesInstall(const std::string &python_interpreter_path, const std::string &requirements_list_path);
+    int executeCommand(const std::string &command);
     bool isPythonInstalled();
-    std::string executeCommand(const std::string &command);
+    std::string executeCommandWithStdOut(const std::string &command);
     std::string strip(const std::string &str);
 
 

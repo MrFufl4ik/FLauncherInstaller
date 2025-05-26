@@ -19,4 +19,5 @@ void installer_url_log(const std::string &text, const std::string &url, LogStatu
 void installer_url_log(const std::string &text, const std::string &url, const std::string &text_2,
                        LogStatus log_type = LogStatus::Status);
 void installer_log(const std::string &text, LogStatus log_type = LogStatus::Status);
+void installer_error_code_log(int error_code);
 void installer_im_log(const std::string &text, const std::string &entity_title_name);

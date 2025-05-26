@@ -14,10 +14,9 @@ int main() {
     std::unordered_map<std::string, std::string> localisation_map = localisation_manager->getLocalisationMap();
     installer_log(localisation_map.at("flauncher.init"));
 
-    InstallManager::getInstance()->installEntity(std::make_unique<PythonInstallEntity>());
-
-    OperationSystemManager *operation_system_manager = OperationSystemManager::getInstance();
-    std::cout << operation_system_manager->isPythonInstalled() << std::endl;
+    std::unique_ptr<InstallEntity> entity = std::make_unique<PythonInstallEntity>();
+    entity->addData("flauncher.path", "D:\\test");
+    InstallManager::getInstance()->installEntity(std::move(entity));
 
 
     installer_log(localisation_map.at("flauncher.off"));
