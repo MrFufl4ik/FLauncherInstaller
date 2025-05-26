@@ -1,13 +1,14 @@
 #pragma once
 
+#include <array>
+#include <curl/curl.h>
+#include <filesystem>
+#include <format>
+#include <fstream>
+#include <memory>
 #include <mutex>
 #include <string>
-#include <curl/curl.h>
-#include <fstream>
-#include <array>
-#include <filesystem>
-#include <memory>
-#include <format>
+#include <vector>
 
 class OperationSystemManager {
 private:
@@ -27,6 +28,7 @@ public:
     bool isPythonInstalled();
     std::string executeCommandWithStdOut(const std::string &command);
     std::string strip(const std::string &str);
+    std::vector<std::string> getLogicalDrives();
 
 
     OperationSystemManager(const OperationSystemManager &) = delete;

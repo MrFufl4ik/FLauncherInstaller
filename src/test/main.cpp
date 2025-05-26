@@ -1,5 +1,6 @@
 #include <curl/curl.h>
 
+#include "../install_entity/flauncher_find_path_install_entity.h"
 #include "../install_entity/python_install_entity.h"
 #include "../install_manager/install_manager.h"
 #include "../localisation_manager/localisation_manager.h"
@@ -14,10 +15,10 @@ int main() {
     std::unordered_map<std::string, std::string> localisation_map = localisation_manager->getLocalisationMap();
     installer_log(localisation_map.at("flauncher.init"));
 
-    std::unique_ptr<InstallEntity> entity = std::make_unique<PythonInstallEntity>();
-    entity->addData("flauncher.path", "D:\\test");
-    InstallManager::getInstance()->installEntity(std::move(entity));
-
+    //std::unique_ptr<InstallEntity> entity = std::make_unique<PythonInstallEntity>();
+    //entity->addData("flauncher.path", "D:\\test");
+    //InstallManager::getInstance()->installEntity(std::move(entity));
+    InstallManager::getInstance()->installEntity(std::make_unique<FlauncherFindPathInstallEntity>());
 
     installer_log(localisation_map.at("flauncher.off"));
     std::cin.get();

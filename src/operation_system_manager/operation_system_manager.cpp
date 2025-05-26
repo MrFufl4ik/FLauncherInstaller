@@ -23,11 +23,9 @@ size_t OperationSystemManager::_writeCallBack(void *contents, size_t size, size_
 }
 
 int OperationSystemManager::downloadFile(const std::string &url, const std::string &destination_file_path) {
-    using std::string, std::ofstream, std::ios;
-
     CURL *curl = curl_easy_init();
     if (curl) {
-        string read_buffer;
+        std::string read_buffer;
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
         curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, _writeCallBack);
@@ -36,7 +34,7 @@ int OperationSystemManager::downloadFile(const std::string &url, const std::stri
         if (curl_easy_perform(curl) != CURLE_OK) { curl_easy_cleanup(curl); return 3; }
         curl_easy_cleanup(curl);
 
-        ofstream out_file{destination_file_path, ios::binary};
+        std::ofstream out_file{destination_file_path, std::ios::binary};
         if (!out_file) return 1;
         out_file << read_buffer;
         out_file.close();
@@ -87,3 +85,13 @@ int OperationSystemManager::pythonPipModulesInstall(const std::string &python_in
         std::format("{} -m pip install -r {}", python_interpreter_path, requirements_list_path);
     return system(python_venv_requirements_install_command.c_str());
 }
+
+std::vector<std::string> OperationSystemManager::getLogicalDrives() {
+    std::vector<std::string> logical_drives = {};
+    for (char drive = 'C'; drive <= 'Z'; ++drive) {
+        std::string logical_drive_path = std::format("{}:\\", std::string("") += drive);
+        if (std::filesystem::exists(logical_drive_path)) logical_drives.push_back(logical_drive_path);
+    }
+    return logical_drives;
+}
+

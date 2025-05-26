@@ -33,18 +33,16 @@ int InstallEntity::install() {
 }
 
 std::string InstallEntity::getData(std::string key) {
-    using std::cout, std::endl;
     if (!_entityData.contains(key)) {
-        cout << "Key: " << key << " is not defined in install entity" << endl;
+        std::cout << "Key: " << key << " is not defined in install entity" << std::endl;
         exit(1);
     }
     return _entityData.at(key);
 }
 
 void InstallEntity::addData(std::string key, std::string value) {
-    using std::cout, std::endl;
     if (_entityData.contains(key)) {
-        cout << "Key: " << key << " the key is defined, but should not be" << endl;
+        std::cout << "Key: " << key << " the key is defined, but should not be" << std::endl;
         exit(1);
     }
     _entityData.emplace(key, value);
