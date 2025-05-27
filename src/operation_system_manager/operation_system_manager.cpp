@@ -95,3 +95,42 @@ std::vector<std::string> OperationSystemManager::getLogicalDrives() {
     return logical_drives;
 }
 
+int OperationSystemManager::extractZipArchive(const std::string &archive_file_path, const std::string &destination_path,
+                                              const std::string &archive_target_folder) {
+    int error_code = 0;
+    zip *archive = zip_open(archive_file_path.c_str(), 0, &error_code);
+    if (!archive) return 4;
+    for (int i = 0; i < static_cast<int>(zip_get_num_entries(archive, 0))) {
+        const char *name = zip_get_name(archive, i, 0);
+        if (!name) continue;
+        std::string entry_name = std::string(name);
+        if (entry_name.find(archive_target_folder) == std::string::npos) continue;
+        std::string relative_path = entry_name.substr(archive_target_folder.length());
+        std::string full_path = destination_path + "/" += relative_path;
+        size_t last_slash = full_path.find_first_not_of('/');
+        if (last_slash != std::string::npos) {
+            std::string dir_path = full_path.substr(0, last_slash);
+            std::filesystem::create_directory(dir_path);
+        }
+        if (entry_name.back() == '/') continue;
+        zip_file *file = zip_fopen_index(archive, i, 0);
+        if (!file) {
+            std::cerr << "Не удалось открыть файл в архиве: " << "\"" << full_path << "\"";
+            continue;
+        }
+        std::ofstream out_file(full_path, std::ios::binary);
+        if (!out_file) continue;
+        char buffer[4096];
+        zip_int64_t bytes_read;
+        while ((bytes_read = zip_fread(file, buffer, sizeof(buffer))) > 0) {
+            out_file.write(buffer, bytes_read);
+        }
+        out_file.close();
+        zip_fclose(file);
+    }
+    zip_close(archive);
+    return true;
+}
+
+
+

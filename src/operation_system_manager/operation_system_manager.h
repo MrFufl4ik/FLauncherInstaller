@@ -9,6 +9,8 @@
 #include <mutex>
 #include <string>
 #include <vector>
+#include <zip.h>
+#include <iostream>
 
 class OperationSystemManager {
 private:
@@ -25,10 +27,16 @@ public:
     int pythonCreateVenv(const std::string &destination_path);
     int pythonPipModulesInstall(const std::string &python_interpreter_path, const std::string &requirements_list_path);
     int executeCommand(const std::string &command);
+    int extractZipArchive(
+        const std::string &archive_file_path,
+        const std::string &destination_path,
+        const std::string &archive_target_folder
+    );
     bool isPythonInstalled();
     std::string executeCommandWithStdOut(const std::string &command);
     std::string strip(const std::string &str);
     std::vector<std::string> getLogicalDrives();
+
 
 
     OperationSystemManager(const OperationSystemManager &) = delete;

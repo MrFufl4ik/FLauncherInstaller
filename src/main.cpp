@@ -398,7 +398,6 @@ bool unzip_archive_file(const std::string& archive_file_path, const std::string&
             while ((bytes_read = zip_fread(file, buffer, sizeof(buffer))) > 0) {
                 out_file.write(buffer, bytes_read);
             }
-
             out_file.close();
             zip_fclose(file);
         }
