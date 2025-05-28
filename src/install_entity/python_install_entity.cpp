@@ -16,7 +16,11 @@ int PythonInstallEntity::_install() {
         installer_log("Получаю данные об установке");
         const std::string python_url = getData("python.url");
         const std::string flauncher_path = getData("flauncher.path");
-        const std::string destination_python_installer_path = std::format("{}\\python.exe", flauncher_path);
+        const std::string destination_python_installer_path = std::format(
+            "{}{}.exe",
+            operation_system_manager->getTempDir(),
+            operation_system_manager->generateUUID4()
+        );
         installer_log("Данные об установке получены", LogStatus::Correct);
         installer_log("Начинаю скачивание установщика Python");
         {

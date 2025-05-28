@@ -1,5 +1,9 @@
 #include "operation_system_manager.h"
 
+#include <algorithm>
+
+#include "../log_manager/log_manager.h"
+
 OperationSystemManager *OperationSystemManager::_instance = nullptr;
 std::mutex OperationSystemManager::_mtx;
 
@@ -100,24 +104,25 @@ int OperationSystemManager::extractZipArchive(const std::string &archive_file_pa
     int error_code = 0;
     zip *archive = zip_open(archive_file_path.c_str(), 0, &error_code);
     if (!archive) return 4;
-    for (int i = 0; i < static_cast<int>(zip_get_num_entries(archive, 0))) {
+    for (int i = 0; i < static_cast<int>(zip_get_num_entries(archive, 0)); i++) {
         const char *name = zip_get_name(archive, i, 0);
         if (!name) continue;
         std::string entry_name = std::string(name);
         if (entry_name.find(archive_target_folder) == std::string::npos) continue;
-        std::string relative_path = entry_name.substr(archive_target_folder.length());
-        std::string full_path = destination_path + "/" += relative_path;
-        size_t last_slash = full_path.find_first_not_of('/');
+        std::string full_path = std::format(
+            "{}/{}",
+            destination_path,
+            entry_name.substr(archive_target_folder.length())
+        );
+        size_t last_slash = full_path.find_last_of('/');
         if (last_slash != std::string::npos) {
             std::string dir_path = full_path.substr(0, last_slash);
+            installer_log(dir_path);
             std::filesystem::create_directory(dir_path);
         }
         if (entry_name.back() == '/') continue;
         zip_file *file = zip_fopen_index(archive, i, 0);
-        if (!file) {
-            std::cerr << "Не удалось открыть файл в архиве: " << "\"" << full_path << "\"";
-            continue;
-        }
+        if (!file) continue;
         std::ofstream out_file(full_path, std::ios::binary);
         if (!out_file) continue;
         char buffer[4096];
@@ -129,8 +134,30 @@ int OperationSystemManager::extractZipArchive(const std::string &archive_file_pa
         zip_fclose(file);
     }
     zip_close(archive);
-    return true;
+    return 0;
 }
+
+std::string OperationSystemManager::generateUUID4() {
+    std::random_device random_device;
+    std::mt19937 generator {random_device()};
+    std::uniform_int_distribution<> first_distribution {0, 15};
+    std::uniform_int_distribution<> second_distribution {8, 11};
+    std::stringstream result;
+    for (int i = 0; i < 32; i++) {
+        int number = 4;
+        if (i == 16) number = second_distribution(generator);
+        else number = first_distribution(generator);
+        result << std::hex << number;
+        if (i == 7 || i == 11 || i == 15 || i == 19) result << '-';
+    }
+    return result.str();
+}
+
+std::string OperationSystemManager::getTempDir() {
+    return std::filesystem::temp_directory_path().generic_string();
+}
+
+
 
 
 

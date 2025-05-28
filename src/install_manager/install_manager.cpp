@@ -15,7 +15,7 @@ InstallManager *InstallManager::getInstance() {
 }
 
 
-bool InstallManager::installEntity(std::unique_ptr<InstallEntity> install_entity) {
+std::pair<bool, std::unique_ptr<InstallEntity>> InstallManager::installEntity(std::unique_ptr<InstallEntity> install_entity) {
     std::lock_guard<std::mutex> lock(mtx);
     std::string entity_title_name = install_entity->getData("entity.titlename");
     std::unordered_map<std::string, std::string> localisation_map =
@@ -30,9 +30,8 @@ bool InstallManager::installEntity(std::unique_ptr<InstallEntity> install_entity
     bool process_exit_code = install_entity->install();
     // end of start
     installer_im_log(localisation_map.at("install.manager.install.process.end"), entity_title_name);
-    if (process_exit_code != 0)
-        return false;
-    return true;
+    if (process_exit_code != 0) return {false, std::move(install_entity)};
+    return {true, std::move(install_entity)};
     // begin of end
     // end of end
 }

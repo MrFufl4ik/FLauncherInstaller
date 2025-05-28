@@ -14,7 +14,7 @@ private:
 
 public:
     static InstallManager *getInstance();
-    bool installEntity(std::unique_ptr<InstallEntity> install_entity);
+    std::pair<bool, std::unique_ptr<InstallEntity>> installEntity(std::unique_ptr<InstallEntity> install_entity);
 
     InstallManager(const InstallManager &) = delete;
     InstallManager &operator=(const InstallManager &) = delete;

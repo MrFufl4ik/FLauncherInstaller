@@ -11,6 +11,7 @@
 #include <vector>
 #include <zip.h>
 #include <iostream>
+#include <random>
 
 class OperationSystemManager {
 private:
@@ -35,6 +36,8 @@ public:
     bool isPythonInstalled();
     std::string executeCommandWithStdOut(const std::string &command);
     std::string strip(const std::string &str);
+    std::string generateUUID4();
+    std::string getTempDir();
     std::vector<std::string> getLogicalDrives();
 
 

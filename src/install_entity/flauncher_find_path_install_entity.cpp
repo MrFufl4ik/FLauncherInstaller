@@ -16,7 +16,7 @@ int FlauncherFindPathInstallEntity::_install() {
     std::vector<std::string> logical_drives = operation_system_manager->getLogicalDrives();
     for (int i = 0; i < logical_drives.size(); i++) {
         const std::string flauncher_path = std::format(
-            "{}\\{}",
+            "{}{}",
             logical_drives[i],
             getData("flauncher.folder.name")
         );
@@ -36,11 +36,12 @@ int FlauncherFindPathInstallEntity::_install() {
         const std::string drive_path = std::format("{}:\\", static_cast<char>(toupper(user_drive[0])));
         if (std::filesystem::exists(drive_path)) {
             const std::string flauncher_path = std::format(
-                "{}\\{}",
+                "{}{}",
                 drive_path,
                 getData("flauncher.folder.name")
             );
             addData("flauncher.path", flauncher_path);
+            std::filesystem::create_directory(flauncher_path);
             return 0;
         }
     }
