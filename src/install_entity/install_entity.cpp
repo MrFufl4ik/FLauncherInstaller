@@ -10,6 +10,7 @@ void InstallEntity::_defaultErrorCatchHandler(int error_code) {
     if (error_code == 1) installer_log("Файл не доступен для записи или чтения", LogStatus::Error);
     else if (error_code == 2) installer_log("Нет подключения к интернету", LogStatus::Error);
     else if (error_code == 3) installer_log("Ресурс не доступен", LogStatus::Error);
+    else if (error_code == 4) installer_log("Файл архива не доступен для записи или чтения");
     _errorCatchHandler(error_code);
 }
 

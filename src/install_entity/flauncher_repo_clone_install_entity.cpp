@@ -39,9 +39,8 @@ int FlauncherRepoCloneInstallEntity::_install() {
         );
         if (error_code != 0) return error_code;
     }
+    addData("flauncher.update.path", destination_path);
     return 0;
 }
 
-void FlauncherRepoCloneInstallEntity::_errorCatchHandler(int error_code) {
-
-}
+void FlauncherRepoCloneInstallEntity::_errorCatchHandler(int error_code) {  }

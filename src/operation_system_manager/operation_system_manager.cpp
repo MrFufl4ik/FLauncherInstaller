@@ -1,8 +1,6 @@
 #include "operation_system_manager.h"
 
-#include <algorithm>
 
-#include "../log_manager/log_manager.h"
 
 OperationSystemManager *OperationSystemManager::_instance = nullptr;
 std::mutex OperationSystemManager::_mtx;
@@ -117,7 +115,6 @@ int OperationSystemManager::extractZipArchive(const std::string &archive_file_pa
         size_t last_slash = full_path.find_last_of('/');
         if (last_slash != std::string::npos) {
             std::string dir_path = full_path.substr(0, last_slash);
-            installer_log(dir_path);
             std::filesystem::create_directory(dir_path);
         }
         if (entry_name.back() == '/') continue;
@@ -157,7 +154,39 @@ std::string OperationSystemManager::getTempDir() {
     return std::filesystem::temp_directory_path().generic_string();
 }
 
+int OperationSystemManager::getVersionOfVersionFile(const std::string &version_file_path) {
+    if (!std::filesystem::exists(version_file_path)) return 0;
+    std::ifstream version_file_input_stream {version_file_path};
+    std::string result;
+    std::getline(version_file_input_stream, result);
+    return std::stoi(result);
+}
 
+std::string OperationSystemManager::normalisePath(const std::string &path) {
+    return std::regex_replace(path, std::regex(R"([\\/]+)"), "/");
+}
 
+std::wstring OperationSystemManager::stringToWString(const std::string &string) {
+    if (string.empty()) return L"";
+    std::wstring wstring = std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(string);
+    return wstring;
+}
 
-
+bool OperationSystemManager::createLinkFile(const std::string &link_file_path, const std::string &executable_file_path,
+                                            const std::string &executable_arguments,
+                                            const std::string &work_directory_path, const std::string &icon_file_path) {
+    HRESULT hresult = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+    if (FAILED(hresult)) return false;
+    std::wstring w_link_file_path = stringToWString(link_file_path);
+    std::wstring w_executable_file_path = stringToWString(executable_file_path);
+    std::wstring w_executable_arguments = stringToWString(executable_arguments);
+    std::wstring w_work_directory_path = stringToWString(work_directory_path);
+    std::wstring w_icon_file_path = stringToWString(icon_file_path);
+    hresult = CoCreateInstance(
+        CLSID_ShellLink,
+        nullptr,
+        CLSCTX_INPROC_SERVER,
+        IID_IShellLink,
+        (void**) &pShell
+    );
+}

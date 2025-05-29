@@ -12,6 +12,15 @@
 #include <zip.h>
 #include <iostream>
 #include <random>
+#include <algorithm>
+#include <regex>
+#include "../log_manager/log_manager.h"
+#include "windows.h"
+#include "winnls.h"
+#include "shobjidl.h"
+#include "objbase.h"
+#include "objidl.h"
+#include "shlguid.h"
 
 class OperationSystemManager {
 private:
@@ -33,11 +42,21 @@ public:
         const std::string &destination_path,
         const std::string &archive_target_folder
     );
+    int getVersionOfVersionFile(const std::string &version_file_path);
     bool isPythonInstalled();
+    bool createLinkFile(
+        const std::string &link_file_path,
+        const std::string &executable_file_path,
+        const std::string &executable_arguments,
+        const std::string &work_directory_path,
+        const std::string &icon_file_path
+    );
     std::string executeCommandWithStdOut(const std::string &command);
     std::string strip(const std::string &str);
     std::string generateUUID4();
     std::string getTempDir();
+    std::string normalisePath(const std::string &path);
+    std::wstring stringToWString(const std::string &string);
     std::vector<std::string> getLogicalDrives();
 
 
