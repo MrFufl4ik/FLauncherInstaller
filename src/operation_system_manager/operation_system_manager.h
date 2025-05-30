@@ -21,6 +21,7 @@
 #include "objbase.h"
 #include "objidl.h"
 #include "shlguid.h"
+#include <shlobj.h>
 
 class OperationSystemManager {
 private:
@@ -56,6 +57,7 @@ public:
     std::string generateUUID4();
     std::string getTempDir();
     std::string normalisePath(const std::string &path);
+    std::string getDesktopPath();
     std::wstring stringToWString(const std::string &string);
     std::vector<std::string> getLogicalDrives();
 

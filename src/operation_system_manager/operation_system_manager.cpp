@@ -169,6 +169,7 @@ std::string OperationSystemManager::normalisePath(const std::string &path) {
 std::wstring OperationSystemManager::stringToWString(const std::string &string) {
     if (string.empty()) return L"";
     std::wstring wstring = std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(string);
+    std::wcout << wstring << std::endl;
     return wstring;
 }
 
@@ -178,15 +179,35 @@ bool OperationSystemManager::createLinkFile(const std::string &link_file_path, c
     HRESULT hresult = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
     if (FAILED(hresult)) return false;
     std::wstring w_link_file_path = stringToWString(link_file_path);
-    std::wstring w_executable_file_path = stringToWString(executable_file_path);
-    std::wstring w_executable_arguments = stringToWString(executable_arguments);
-    std::wstring w_work_directory_path = stringToWString(work_directory_path);
     std::wstring w_icon_file_path = stringToWString(icon_file_path);
+    IShellLink *p_shell_link = nullptr;
     hresult = CoCreateInstance(
         CLSID_ShellLink,
         nullptr,
         CLSCTX_INPROC_SERVER,
         IID_IShellLink,
-        (void**) &pShell
+        (void**) &p_shell_link
     );
+    if (SUCCEEDED(hresult)) {
+        p_shell_link->SetPath(executable_file_path.c_str());
+        p_shell_link->SetArguments(executable_arguments.c_str());
+        if (!w_icon_file_path.empty())
+            p_shell_link->SetIconLocation(icon_file_path.c_str(), 0);
+        p_shell_link->SetWorkingDirectory(work_directory_path.c_str());
+        IPersistFile *p_persist_file = nullptr;
+        hresult = p_shell_link->QueryInterface(IID_IPersistFile, (void**) &p_persist_file);
+        if (SUCCEEDED(hresult)) {
+            hresult = p_persist_file->Save(w_link_file_path.c_str(), TRUE);
+            p_persist_file->Release();
+        }
+        p_persist_file->Release();
+    }
+    CoUninitialize();
+    return SUCCEEDED(hresult);
+}
+
+std::string OperationSystemManager::getDesktopPath() {
+    char desktop_path[MAX_PATH] = {0};
+    if (!SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_DESKTOP, NULL, 0, desktop_path))) exit(1);
+    return std::string(desktop_path);
 }

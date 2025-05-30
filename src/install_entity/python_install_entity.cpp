@@ -57,6 +57,7 @@ int PythonInstallEntity::_install() {
         if (result_code != 0) return result_code;
         installer_log("Виртуальное окружение создано", LogStatus::Correct);
     }
+    addData("virtual.python.path", virtual_python_path);
     installer_log("Начинаю установку библиотек pip");
     if (!std::filesystem::exists(destination_requirements_file_path)) return 1;
     {

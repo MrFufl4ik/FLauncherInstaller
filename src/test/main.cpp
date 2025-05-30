@@ -2,6 +2,7 @@
 
 #include "../install_entity/flauncher_find_path_install_entity.h"
 #include "../install_entity/flauncher_repo_clone_install_entity.h"
+#include "../install_entity/flauncher_shortcut_install_entity.h"
 #include "../install_entity/flauncher_update_install_entity.h"
 #include "../install_entity/python_install_entity.h"
 #include "../install_manager/install_manager.h"
@@ -49,7 +50,28 @@ bool run(InstallManager *install_manager) {
     std::unique_ptr<InstallEntity> flauncher_update_install_entity = std::make_unique<FlauncherUpdateInstallEntity>();
     flauncher_update_install_entity->addData("flauncher.path", flauncher_path);
     flauncher_update_install_entity->addData("flauncher.update.path", flauncher_update_path);
-    install_manager->installEntity(std::move(flauncher_update_install_entity));
+    {
+        bool exit_state = install_manager->installEntity(std::move(flauncher_update_install_entity)).first;
+        if (exit_state == false) return false;
+    }
+
+    std::unique_ptr<InstallEntity> python_install_entity = std::make_unique<PythonInstallEntity>();
+    python_install_entity->addData("flauncher.path", flauncher_path);
+    auto python_install_entity_pair = install_manager->installEntity(std::move(python_install_entity));
+    {
+        bool exit_state = python_install_entity_pair.first;
+        if (exit_state == false) return false;
+    }
+    const std::string virtual_python_path = python_install_entity_pair.second->getData("virtual.python.path");
+
+    std::unique_ptr<InstallEntity> flauncher_shortcut_install_entity =
+        std::make_unique<FlauncherShortcutInstallEntity>();
+    flauncher_shortcut_install_entity->addData("flauncher.path", flauncher_path);
+    flauncher_shortcut_install_entity->addData("virtual.python.path", virtual_python_path);
+    {
+        bool exit_state = install_manager->installEntity(std::move(flauncher_shortcut_install_entity)).first;
+        if (exit_state == false) return false;
+    }
     return true;
 }
 
