@@ -58,6 +58,7 @@ public:
     std::string getTempDir();
     std::string normalisePath(const std::string &path);
     std::string getDesktopPath();
+    std::string wStringToString(const std::wstring &wstring);
     std::wstring stringToWString(const std::string &string);
     std::vector<std::string> getLogicalDrives();
 

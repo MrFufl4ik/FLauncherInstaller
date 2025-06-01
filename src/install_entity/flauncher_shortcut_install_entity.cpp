@@ -21,7 +21,7 @@ int FlauncherShortcutInstallEntity::_install() {
             std::format("{}\\{}\\{}", virtual_python_path, "Scripts", "pythonw.exe"),
             std::format("{}\\{}", flauncher_path, "main.py"),
             flauncher_path,
-            ""
+            std::format("{}\\{}\\{}", flauncher_path, "assets", "frog_launcher_icon.ico")
         );
         if (exit_state == false) return 5;
     }

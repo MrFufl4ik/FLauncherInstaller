@@ -166,10 +166,16 @@ std::string OperationSystemManager::normalisePath(const std::string &path) {
     return std::regex_replace(path, std::regex(R"([\\/]+)"), "/");
 }
 
+std::string OperationSystemManager::wStringToString(const std::wstring &wstring) {
+    if (wstring.empty()) return "";
+    std::string string = std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(wstring);
+    return string;
+}
+
+
 std::wstring OperationSystemManager::stringToWString(const std::string &string) {
     if (string.empty()) return L"";
     std::wstring wstring = std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(string);
-    std::wcout << wstring << std::endl;
     return wstring;
 }
 
@@ -207,7 +213,12 @@ bool OperationSystemManager::createLinkFile(const std::string &link_file_path, c
 }
 
 std::string OperationSystemManager::getDesktopPath() {
-    char desktop_path[MAX_PATH] = {0};
-    if (!SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_DESKTOP, NULL, 0, desktop_path))) exit(1);
-    return std::string(desktop_path);
+    PWSTR path = nullptr;
+    HRESULT hresult = SHGetKnownFolderPath(FOLDERID_Desktop, 0, nullptr, &path);
+    if (SUCCEEDED(hresult)) {
+        std::wstring desktop_path {path};
+        CoTaskMemFree(path);
+        return wStringToString(desktop_path);
+    }
+    else return "";
 }
