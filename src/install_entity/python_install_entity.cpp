@@ -1,7 +1,5 @@
 #include "python_install_entity.h"
 
-#include "../operation_system_manager/operation_system_manager.h"
-
 PythonInstallEntity::PythonInstallEntity() {
     addData("entity.wait", "Начинаю установку Python");
     addData("entity.installed", "Python успешно установлен");
@@ -12,8 +10,9 @@ PythonInstallEntity::PythonInstallEntity() {
 
 int PythonInstallEntity::_install() {
     OperationSystemManager *operation_system_manager = OperationSystemManager::getInstance();
+    std::unordered_map<std::string, std::string> localisation_map = LocalisationManager::getInstance()->getLocalisationMap();
     if (!operation_system_manager->isPythonInstalled()) {
-        installer_log("Получаю данные об установке");
+        installer_log(localisation_map.at("install.manager.wait.get.data"));
         const std::string python_url = getData("python.url");
         const std::string flauncher_path = getData("flauncher.path");
         const std::string destination_python_installer_path = std::format(
@@ -21,7 +20,7 @@ int PythonInstallEntity::_install() {
             operation_system_manager->getTempDir(),
             operation_system_manager->generateUUID4()
         );
-        installer_log("Данные об установке получены", LogStatus::Correct);
+        installer_log(localisation_map.at("install.manager.get.data"), LogStatus::Correct);
         installer_log("Начинаю скачивание установщика Python");
         {
             int result_code = operation_system_manager->downloadFile(
