@@ -1,5 +1,6 @@
 #include "install_entity.h"
 #include "../operation_system_manager/operation_system_manager.h"
+#include "../localisation_manager/localisation_manager.h"
 
 class FlauncherUpdateInstallEntity : public InstallEntity {
 private:
