@@ -1,6 +1,4 @@
 #include "flauncher_repo_clone_install_entity.h"
-#include "../operation_system_manager/operation_system_manager.h"
-
 
 FlauncherRepoCloneInstallEntity::FlauncherRepoCloneInstallEntity() {
     addData("entity.wait", "Начинаю клонирование репозитория FLauncher'a");
@@ -12,9 +10,10 @@ FlauncherRepoCloneInstallEntity::FlauncherRepoCloneInstallEntity() {
 
 int FlauncherRepoCloneInstallEntity::_install() {
     OperationSystemManager *operation_system_manager = OperationSystemManager::getInstance();
-    installer_log("Получаю данные об установке");
+    std::unordered_map<std::string, std::string> localisation_map = LocalisationManager::getInstance()->getLocalisationMap();
+    installer_log(localisation_map.at("install.manager.wait.get.data"));
     const std::string flauncher_path = getData("flauncher.path");
-    installer_log("Данные об установке получены");
+    installer_log(localisation_map.at("install.manager.get.data"));
     installer_log("Начинаю скачивание архива с FLauncher");
     const std::string flauncher_archive_file_path = std::format(
         "{}{}.zip",

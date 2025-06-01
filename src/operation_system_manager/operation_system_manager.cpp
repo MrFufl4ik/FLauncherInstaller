@@ -1,7 +1,5 @@
 #include "operation_system_manager.h"
 
-
-
 OperationSystemManager *OperationSystemManager::_instance = nullptr;
 std::mutex OperationSystemManager::_mtx;
 

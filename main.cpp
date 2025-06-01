@@ -1,14 +1,14 @@
 #include <curl/curl.h>
 
-#include "../install_entity/flauncher_find_path_install_entity.h"
-#include "../install_entity/flauncher_repo_clone_install_entity.h"
-#include "../install_entity/flauncher_shortcut_install_entity.h"
-#include "../install_entity/flauncher_update_install_entity.h"
-#include "../install_entity/python_install_entity.h"
-#include "../install_manager/install_manager.h"
-#include "../localisation_manager/localisation_manager.h"
-#include "../log_manager/log_manager.h"
-#include "../operation_system_manager/operation_system_manager.h"
+#include "src/install_entity/flauncher_find_path_install_entity.h"
+#include "src/install_entity/flauncher_repo_clone_install_entity.h"
+#include "src/install_entity/flauncher_shortcut_install_entity.h"
+#include "src/install_entity/flauncher_update_install_entity.h"
+#include "src/install_entity/python_install_entity.h"
+#include "src/install_manager/install_manager.h"
+#include "src/localisation_manager/localisation_manager.h"
+#include "src/log_manager/log_manager.h"
+#include "src/operation_system_manager/operation_system_manager.h"
 
 bool run(InstallManager *install_manager);
 
@@ -25,7 +25,9 @@ int main() {
     // OperationSystemManager *operation_system_manager = OperationSystemManager::getInstance();
     // std::wcout << operation_system_manager->stringToWString("Hello world") << std::endl;
 
+    std::cout << std::endl;
     installer_log(localisation_map.at("flauncher.off"));
+    installer_log(localisation_map.at("flauncher.wait.exit"));
     std::cin.get();
     return 0;
 }
@@ -34,44 +36,36 @@ bool run(InstallManager *install_manager) {
     std::unique_ptr<InstallEntity> flauncher_find_path_install_entity =
             install_manager->installEntity(std::make_unique<FlauncherFindPathInstallEntity>()).second;
     const std::string flauncher_path = flauncher_find_path_install_entity->getData("flauncher.path");
-
+    std::cout << std::endl;
+    
     std::unique_ptr<InstallEntity> flauncher_repo_clone_install_entity =
         std::make_unique<FlauncherRepoCloneInstallEntity>();
     flauncher_repo_clone_install_entity->addData("flauncher.path", flauncher_path);
     auto flauncher_repo_clone_install_entity_result_pair =
         install_manager->installEntity(std::move(flauncher_repo_clone_install_entity));
-    {
-        bool exit_state = flauncher_repo_clone_install_entity_result_pair.first;
-        if (exit_state == false) return false;
-    }
+    if (!flauncher_repo_clone_install_entity_result_pair.first) return false;
     const std::string flauncher_update_path =
         flauncher_repo_clone_install_entity_result_pair.second->getData("flauncher.update.path");
-
+    std::cout << std::endl;
+        
     std::unique_ptr<InstallEntity> flauncher_update_install_entity = std::make_unique<FlauncherUpdateInstallEntity>();
     flauncher_update_install_entity->addData("flauncher.path", flauncher_path);
     flauncher_update_install_entity->addData("flauncher.update.path", flauncher_update_path);
-    {
-        bool exit_state = install_manager->installEntity(std::move(flauncher_update_install_entity)).first;
-        if (exit_state == false) return false;
-    }
+    if(!install_manager->installEntity(std::move(flauncher_update_install_entity)).first) return false;
+    std::cout << std::endl;
 
     std::unique_ptr<InstallEntity> python_install_entity = std::make_unique<PythonInstallEntity>();
     python_install_entity->addData("flauncher.path", flauncher_path);
     auto python_install_entity_pair = install_manager->installEntity(std::move(python_install_entity));
-    {
-        bool exit_state = python_install_entity_pair.first;
-        if (exit_state == false) return false;
-    }
+    if (!python_install_entity_pair.first) return false;
     const std::string virtual_python_path = python_install_entity_pair.second->getData("virtual.python.path");
+    std::cout << std::endl;
 
     std::unique_ptr<InstallEntity> flauncher_shortcut_install_entity =
         std::make_unique<FlauncherShortcutInstallEntity>();
     flauncher_shortcut_install_entity->addData("flauncher.path", flauncher_path);
     flauncher_shortcut_install_entity->addData("virtual.python.path", virtual_python_path);
-    {
-        bool exit_state = install_manager->installEntity(std::move(flauncher_shortcut_install_entity)).first;
-        if (exit_state == false) return false;
-    }
+    if (!install_manager->installEntity(std::move(flauncher_shortcut_install_entity)).first) return false;
     return true;
 }
 

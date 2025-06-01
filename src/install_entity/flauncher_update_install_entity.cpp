@@ -1,7 +1,5 @@
 #include "flauncher_update_install_entity.h"
 
-#include "../operation_system_manager/operation_system_manager.h"
-
 FlauncherUpdateInstallEntity::FlauncherUpdateInstallEntity() {
     addData("entity.wait", "Начинаю установку/обновление");
     addData("entity.installed", "FLauncher успешно установлен/обновлен");
@@ -12,10 +10,11 @@ FlauncherUpdateInstallEntity::FlauncherUpdateInstallEntity() {
 
 int FlauncherUpdateInstallEntity::_install() {
     OperationSystemManager *operation_system_manager = OperationSystemManager::getInstance();
-    installer_log("Получаю данные об установке");
+    std::unordered_map<std::string, std::string> localisation_map = LocalisationManager::getInstance()->getLocalisationMap();
+    installer_log(localisation_map.at("install.manager.wait.get.data"));
     const std::string flauncher_path = getData("flauncher.path");
     const std::string flauncher_update_path = getData("flauncher.update.path");
-    installer_log("Данные об установке получены", LogStatus::Correct);
+    installer_log(localisation_map.at("install.manager.get.data"), LogStatus::Correct);
     const int current_flauncher_version = operation_system_manager->getVersionOfVersionFile(std::format(
         "{}\\{}",
         flauncher_path,
@@ -67,8 +66,7 @@ int FlauncherUpdateInstallEntity::_install() {
     return 0;
 }
 
-void FlauncherUpdateInstallEntity::_errorCatchHandler(int error_code) {
+void FlauncherUpdateInstallEntity::_errorCatchHandler(int error_code) {  }
 
-}
 
 
