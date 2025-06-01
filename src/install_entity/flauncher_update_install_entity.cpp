@@ -41,10 +41,11 @@ int FlauncherUpdateInstallEntity::_install() {
     ));
     for (const std::filesystem::directory_entry &entry : std::filesystem::directory_iterator(flauncher_path)) {
         const std::string path = entry.path().generic_string();
+        installer_log(path);
         if (path == operation_system_manager->normalisePath(flauncher_update_path))
             nullptr;
         else if (path == operation_system_manager->normalisePath(std::format(
-            "{}\\{}\\",
+            "{}/{}",
             flauncher_path,
             "modpacks"
         )))
