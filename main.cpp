@@ -26,6 +26,7 @@ int main() {
     // std::wcout << operation_system_manager->stringToWString("Hello world") << std::endl;
 
     installer_log(localisation_map.at("flauncher.off"));
+    installer_log(localisation_map.at("flauncher.wait.exit"));
     std::cin.get();
     return 0;
 }
