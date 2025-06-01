@@ -34,7 +34,8 @@ bool run(InstallManager *install_manager) {
     std::unique_ptr<InstallEntity> flauncher_find_path_install_entity =
             install_manager->installEntity(std::make_unique<FlauncherFindPathInstallEntity>()).second;
     const std::string flauncher_path = flauncher_find_path_install_entity->getData("flauncher.path");
-
+    std::cout << std::endl;
+    
     std::unique_ptr<InstallEntity> flauncher_repo_clone_install_entity =
         std::make_unique<FlauncherRepoCloneInstallEntity>();
     flauncher_repo_clone_install_entity->addData("flauncher.path", flauncher_path);
@@ -43,17 +44,20 @@ bool run(InstallManager *install_manager) {
     if (!flauncher_repo_clone_install_entity_result_pair.first) return false;
     const std::string flauncher_update_path =
         flauncher_repo_clone_install_entity_result_pair.second->getData("flauncher.update.path");
-
+    std::cout << std::endl;
+        
     std::unique_ptr<InstallEntity> flauncher_update_install_entity = std::make_unique<FlauncherUpdateInstallEntity>();
     flauncher_update_install_entity->addData("flauncher.path", flauncher_path);
     flauncher_update_install_entity->addData("flauncher.update.path", flauncher_update_path);
     if(!install_manager->installEntity(std::move(flauncher_update_install_entity)).first) return false;
+    std::cout << std::endl;
 
     std::unique_ptr<InstallEntity> python_install_entity = std::make_unique<PythonInstallEntity>();
     python_install_entity->addData("flauncher.path", flauncher_path);
     auto python_install_entity_pair = install_manager->installEntity(std::move(python_install_entity));
     if (!python_install_entity_pair.first) return false;
     const std::string virtual_python_path = python_install_entity_pair.second->getData("virtual.python.path");
+    std::cout << std::endl;
 
     std::unique_ptr<InstallEntity> flauncher_shortcut_install_entity =
         std::make_unique<FlauncherShortcutInstallEntity>();
