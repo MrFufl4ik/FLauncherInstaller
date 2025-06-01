@@ -66,8 +66,7 @@ int FlauncherUpdateInstallEntity::_install() {
     return 0;
 }
 
-void FlauncherUpdateInstallEntity::_errorCatchHandler(int error_code) {
+void FlauncherUpdateInstallEntity::_errorCatchHandler(int error_code) {  }
 
-}
 
 
