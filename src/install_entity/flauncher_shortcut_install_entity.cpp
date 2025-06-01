@@ -1,7 +1,5 @@
 #include "flauncher_shortcut_install_entity.h"
 
-#include "../operation_system_manager/operation_system_manager.h"
-
 FlauncherShortcutInstallEntity::FlauncherShortcutInstallEntity() {
     addData("entity.wait", "Начинаю создание ярлыка");
     addData("entity.installed", "Ярлык успешно создан");
@@ -11,10 +9,11 @@ FlauncherShortcutInstallEntity::FlauncherShortcutInstallEntity() {
 
 int FlauncherShortcutInstallEntity::_install() {
     OperationSystemManager *operation_system_manager = OperationSystemManager::getInstance();
-    installer_log("Получаю данные об установке");
+    std::unordered_map<std::string, std::string> localisation_map = LocalisationManager::getInstance()->getLocalisationMap();
+    installer_log(localisation_map.at("install.manager.wait.get.data"));
     const std::string flauncher_path = getData("flauncher.path");
     const std::string virtual_python_path = getData("virtual.python.path");
-    installer_log("Данные об установке получены", LogStatus::Correct);
+    installer_log(localisation_map.at("install.manager.get.data"), LogStatus::Correct);
     {
         bool exit_state = operation_system_manager->createLinkFile(
             std::format("{}\\{}", operation_system_manager->getDesktopPath(), "FLauncher.lnk"),

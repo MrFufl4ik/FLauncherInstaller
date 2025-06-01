@@ -26,8 +26,8 @@ void LocalisationManager::loadLocalisation(LocalisationType localisation_type) {
 
         localisationMap.emplace("install.manager.install.process.start", "Начинаю установку entity");
         localisationMap.emplace("install.manager.install.process.end", "Завершена установка entity");
-        localisationMap.emplace("install.manager.wait.get.data");
-        localisationMap.emplace("install.manager.get.data");
+        localisationMap.emplace("install.manager.wait.get.data", "Получаю данные об установке");
+        localisationMap.emplace("install.manager.get.data", "Данные об установке получены");
     }
 }
 
