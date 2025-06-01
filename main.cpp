@@ -1,14 +1,14 @@
 #include <curl/curl.h>
 
-#include "../install_entity/flauncher_find_path_install_entity.h"
-#include "../install_entity/flauncher_repo_clone_install_entity.h"
-#include "../install_entity/flauncher_shortcut_install_entity.h"
-#include "../install_entity/flauncher_update_install_entity.h"
-#include "../install_entity/python_install_entity.h"
-#include "../install_manager/install_manager.h"
-#include "../localisation_manager/localisation_manager.h"
-#include "../log_manager/log_manager.h"
-#include "../operation_system_manager/operation_system_manager.h"
+#include "src/install_entity/flauncher_find_path_install_entity.h"
+#include "src/install_entity/flauncher_repo_clone_install_entity.h"
+#include "src/install_entity/flauncher_shortcut_install_entity.h"
+#include "src/install_entity/flauncher_update_install_entity.h"
+#include "src/install_entity/python_install_entity.h"
+#include "src/install_manager/install_manager.h"
+#include "src/localisation_manager/localisation_manager.h"
+#include "src/log_manager/log_manager.h"
+#include "src/operation_system_manager/operation_system_manager.h"
 
 bool run(InstallManager *install_manager);
 
