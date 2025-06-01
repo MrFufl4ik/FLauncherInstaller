@@ -25,6 +25,7 @@ int main() {
     // OperationSystemManager *operation_system_manager = OperationSystemManager::getInstance();
     // std::wcout << operation_system_manager->stringToWString("Hello world") << std::endl;
 
+    std::cout << std::endl;
     installer_log(localisation_map.at("flauncher.off"));
     installer_log(localisation_map.at("flauncher.wait.exit"));
     std::cin.get();
